@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>한올바이오파마 문헌모니터링 대시보드</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #003366 0%, #004d99 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .dashboard {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 50px;
+            padding: 40px 20px;
+        }
+        header h1 {
+            font-size: 48px;
+            margin-bottom: 15px;
+            font-weight: 300;
+            letter-spacing: 1px;
+        }
+        header p {
+            font-size: 18px;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+        .report-info {
+            background-color: rgba(255,255,255,0.15);
+            padding: 15px 30px;
+            border-radius: 8px;
+            width: fit-content;
+            margin: 0 auto;
+            backdrop-filter: blur(10px);
+        }
+        .report-info span {
+            color: #FFD700;
+            font-weight: bold;
+        }
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 50px;
+        }
+        .stat-card {
+            background-color: white;
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+        .stat-number {
+            font-size: 48px;
+            font-weight: bold;
+            color: #E87722;
+            margin-bottom: 10px;
+        }
+        .stat-label {
+            font-size: 16px;
+            color: #666;
+            font-weight: 500;
+        }
+        .divider {
+            height: 2px;
+            background-color: rgba(255,255,255,0.2);
+            margin: 40px 0;
+        }
+        .session-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+        .session-card {
+            background-color: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .session-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+        }
+        .session-header {
+            background-color: #003366;
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+        .session-emoji {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+        .session-title {
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .session-subtitle {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+        .session-content {
+            padding: 25px 20px;
+        }
+        .product-info {
+            margin-bottom: 20px;
+        }
+        .product-label {
+            font-size: 12px;
+            color: #999;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .product-name {
+            font-size: 16px;
+            color: #003366;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        .paper-count {
+            background-color: #f0f6ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .paper-count-number {
+            font-size: 28px;
+            font-weight: bold;
+            color: #E87722;
+            display: block;
+        }
+        .paper-count-label {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            color: white;
+            margin-bottom: 15px;
+        }
+        .status-new {
+            background-color: #E87722;
+        }
+        .status-archive {
+            background-color: #6B8CAE;
+        }
+        .action-button {
+            display: block;
+            width: 100%;
+            padding: 12px 20px;
+            background-color: #E87722;
+            color: white;
+            text-align: center;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .action-button:hover {
+            background-color: #d46b1f;
+        }
+        .action-button.disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        footer {
+            text-align: center;
+            color: white;
+            padding: 40px 20px;
+            font-size: 13px;
+            opacity: 0.8;
+        }
+        .last-update {
+            background-color: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 8px;
+            color: #FFD700;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 32px;
+            }
+            .session-grid {
+                grid-template-columns: 1fr;
+            }
+            .stats-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <header>
+            <h1>📚 한올바이오파마 문헌모니터링</h1>
+            <p>ETC마케팅기획본부 학술 동향 분석</p>
+            <div class="report-info">
+                2026년 4월 월간 리포트 · <span>신규 논문 17편</span> · 발행일 2026.04.23
+            </div>
+        </header>
+
+        <div class="last-update">
+            최근 업데이트: 2026년 4월 23일 | 다음 업데이트: 2026년 5월 22일 (매월 넷째주 수요일)
+        </div>
+
+        <div class="stats-container">
+            <div class="stat-card">
+                <div class="stat-number">17</div>
+                <div class="stat-label">신규 논문 (4월)</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">5</div>
+                <div class="stat-label">모니터링 세션</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">12</div>
+                <div class="stat-label">★★★ 등급</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">5</div>
+                <div class="stat-label">★★☆ 등급</div>
+            </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="session-grid">
+            <div class="session-card">
+                <div class="session-header">
+                    <div class="session-emoji">🦠</div>
+                    <div class="session-title">장내미생물</div>
+                    <div class="session-subtitle">Gut Microbiota & Probiotics</div>
+                </div>
+                <div class="session-content">
+                    <div class="product-info">
+                        <div class="product-label">대상 제품</div>
+                        <div class="product-name">바이오탑</div>
+                    </div>
+                    <div class="paper-count">
+                        <span class="paper-count-number">5</span>
+                        <span class="paper-count-label">신규 논문</span>
+                    </div>
+                    <span class="status-badge status-new">NEW</span>
+                    <a href="문헌모니터링_4월_장내미생물_20260423.html" class="action-button">리포트 보기</a>
+                </div>
+            </div>
+
+            <div class="session-card">
+                <div class="session-header">
+                    <div class="session-emoji">🫁</div>
+                    <div class="session-title">Gut-Liver Axis</div>
+                    <div class="session-subtitle">MASLD & Hepatic Encephalopathy</div>
+                </div>
+                <div class="session-content">
+                    <div class="product-info">
+                        <div class="product-label">대상 제품</div>
+                        <div class="product-name">노르믹스 + 하노마린</div>
+                    </div>
+                    <div class="paper-count">
+                        <span class="paper-count-number">2</span>
+                        <span class="paper-count-label">신규 논문</span>
+                    </div>
+                    <span class="status-badge status-new">NEW</span>
+                    <a href="문헌모니터링_4월_Gut-Liver_Axis_20260423.html" class="action-button">리포트 보기</a>
+                </div>
+            </div>
+
+            <div class="session-card">
+                <div class="session-header">
+                    <div class="session-emoji">💇</div>
+                    <div class="session-title">탈모치료</div>
+                    <div class="session-subtitle">Androgenetic Alopecia</div>
+                </div>
+                <div class="session-content">
+                    <div class="product-info">
+                        <div class="product-label">대상 제품</div>
+                        <div class="product-name">헤어그로</div>
+                    </div>
+                    <div class="paper-count">
+                        <span class="paper-count-number">4</span>
+                        <span class="paper-count-label">신규 논문</span>
+                    </div>
+                    <span class="status-badge status-new">NEW</span>
+                    <a href="문헌모니터링_4월_탈모치료_20260423.html" class="action-button">리포트 보기</a>
+                </div>
+            </div>
+
+            <div class="session-card">
+                <div class="session-header">
+                    <div class="session-emoji">🏥</div>
+                    <div class="session-title">비뇨기·종양·CPP</div>
+                    <div class="session-subtitle">Prostate Cancer & GnRH</div>
+                </div>
+                <div class="session-content">
+                    <div class="product-info">
+                        <div class="product-label">대상 제품</div>
+                        <div class="product-name">엘리가드 + 엔잘루타</div>
+                    </div>
+                    <div class="paper-count">
+                        <span class="paper-count-number">6</span>
+                        <span class="paper-count-label">신규 논문</span>
+                    </div>
+                    <span class="status-badge status-new">NEW</span>
+                    <a href="문헌모니터링_4월_비뇨기종양CPP_20260423.html" class="action-button">리포트 보기</a>
+                </div>
+            </div>
+
+            <div class="session-card">
+                <div class="session-header">
+                    <div class="session-emoji">🦴</div>
+                    <div class="session-title">골대사·신경</div>
+                    <div class="session-subtitle">Bone Metabolism & Neuropathy</div>
+                </div>
+                <div class="session-content">
+                    <div class="product-info">
+                        <div class="product-label">대상 제품</div>
+                        <div class="product-name">알파본D + 프레논OD</div>
+                    </div>
+                    <div class="paper-count">
+                        <span class="paper-count-number">0</span>
+                        <span class="paper-count-label">신규 논문</span>
+                    </div>
+                    <span class="status-badge status-archive">아카이브</span>
+                    <a href="문헌모니터링_4월_골대사신경_20260423.html" class="action-button">리포트 보기</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <footer>
+            <p>한올바이오파마 ETC마케팅기획본부 · 학술 문헌모니터링 시스템</p>
+            <p style="margin-top: 15px; opacity: 0.7;">매월 넷째주 수요일 정기 발행 | 검색범위: 전년 1월 ~ 현재월</p>
+            <p style="margin-top: 15px; opacity: 0.7;">소스: PubMed, PMC, ClinicalTrials.gov, 주요 저널(Nature, Lancet, JAMA 등), KoreaMed, 학회 가이드라인</p>
+        </footer>
+    </div>
+</body>
+</html>
