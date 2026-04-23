@@ -785,11 +785,8 @@ function renderCard(p, idx) {
   const urlBtn = p.url
     ? `<a class="btn btn-outline" href="${p.url}" target="_blank">📄 논문 보기 ↗</a>` : '';
 
-  // 논문별 상세 리포트 버튼 (해당 논문 제목만 URL 해시로 전달 → 리포트 페이지가 그 논문만 표시)
-  const paperReportUrl = getReportUrl(p.session, p.month);
-  const detailBtn = paperReportUrl
-    ? `<a class="btn btn-report" href="${paperReportUrl}#t=${encodeURIComponent(p.title)}" target="_blank">📋 상세 리포트 ↗</a>`
-    : '';
+  // 논문별 상세 리포트 버튼: 공용 상세페이지로 연결 (모든 논문이 동일한 상세 화면 보장)
+  const detailBtn = `<a class="btn btn-report" href="논문상세.html?t=${encodeURIComponent(p.title)}" target="_blank">📋 상세 리포트 ↗</a>`;
 
   // 5-파트 구조화 요약 파싱
   const summaryHtml = p.summary ? parseSummaryHtml(p.summary) : '';
