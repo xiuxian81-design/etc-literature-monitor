@@ -169,5 +169,105 @@
             <p><strong>보고일:</strong> 2026-04-23 | <strong>다음 리포트:</strong> 2026-05-22</p>
         </div>
     </div>
+
+
+<!-- ★ 단일 논문 필터 (대시보드에서 #t=제목 으로 진입 시) ★ -->
+<script>
+(function() {
+  var STOP = {
+    'the':1,'a':1,'an':1,'of':1,'and':1,'or':1,'in':1,'on':1,'for':1,'to':1,'with':1,
+    'vs':1,'by':1,'at':1,'from':1,'as':1,'is':1,'are':1,'be':1,'study':1
+  };
+  function tokenize(s) {
+    return String(s || '')
+      .toLowerCase()
+      .replace(/[^\p{L}\p{N}\s]/gu, ' ')
+      .split(/\s+/)
+      .filter(function(w) { return w && w.length >= 2 && !STOP[w]; });
+  }
+  function scoreMatch(a, b) {
+    var ta = tokenize(a), tb = tokenize(b);
+    if (!ta.length || !tb.length) return 0;
+    var setA = {}; ta.forEach(function(w){ setA[w]=1; });
+    var inter = 0; tb.forEach(function(w){ if (setA[w]) inter++; });
+    var shorter = Math.min(ta.length, tb.length);
+    return shorter ? (inter / shorter) : 0;
+  }
+
+  function applyPaperFilter() {
+    var hash = window.location.hash || '';
+    var m = hash.match(/^#t=(.+)$/);
+    if (!m) return;
+    var target = decodeURIComponent(m[1]).trim();
+    if (!target) return;
+
+    var papers = document.querySelectorAll('.paper');
+    if (!papers.length) return;
+
+    var best = { node: null, score: 0 };
+    papers.forEach(function(p) {
+      var tEl = p.querySelector('.paper-title');
+      var txt = tEl ? tEl.textContent.trim() : '';
+      if (!txt) return;
+      var s = scoreMatch(txt, target);
+      // 완전 일치 우대
+      if (txt.toLowerCase() === target.toLowerCase()) s = 1;
+      if (s > best.score) best = { node: p, score: s };
+    });
+
+    // 임계값 0.5 이상 매칭을 유효한 매칭으로 판단 (50% 이상 단어 겹침)
+    if (!best.node || best.score < 0.5) {
+      // 매칭 실패 → 상단에 안내 바만 띄우고 전체 유지
+      var warn = document.createElement('div');
+      warn.setAttribute('data-single-paper-bar', '1');
+      warn.style.cssText = 'position:sticky;top:0;z-index:500;background:#8a6d0e;color:#fff;padding:10px 18px;margin:0 0 16px;border-radius:8px;display:flex;justify-content:space-between;align-items:center;font-family:Malgun Gothic,Apple SD Gothic Neo,sans-serif;';
+      warn.innerHTML =
+        '<span style="font-size:13px;">⚠️ 해당 논문을 리포트에서 찾지 못해 전체를 표시합니다.</span>' +
+        '<a href="' + window.location.pathname + window.location.search + '" style="color:#fff;text-decoration:underline;font-size:12px;">일반 보기</a>';
+      var m2 = document.querySelector('.container') || document.body;
+      m2.insertBefore(warn, m2.firstChild);
+      return;
+    }
+
+    // 매칭된 논문 외 전부 숨김
+    papers.forEach(function(p) {
+      if (p !== best.node) p.style.display = 'none';
+    });
+
+    // 전체 관점의 섹션은 숨김
+    var hideSelectors = [
+      '.exec-box', '.legend', '.stat-row', '.stats-container',
+      '.metadata', '.empty-state', '.reference-note',
+      '.viz-section-overall', '.overall-summary', '.intro-section'
+    ];
+    hideSelectors.forEach(function(sel) {
+      document.querySelectorAll(sel).forEach(function(el) { el.style.display = 'none'; });
+    });
+
+    // 복귀 바
+    var bar = document.createElement('div');
+    bar.setAttribute('data-single-paper-bar', '1');
+    bar.style.cssText = 'position:sticky;top:0;z-index:500;background:#003366;color:#fff;padding:10px 18px;margin:0 0 16px;border-radius:8px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 2px 8px rgba(0,0,0,.25);font-family:Malgun Gothic,Apple SD Gothic Neo,sans-serif;';
+    bar.innerHTML =
+      '<span style="font-size:13px;font-weight:600;">📄 단일 논문 보기 모드</span>' +
+      '<a href="' + window.location.pathname + window.location.search + '" style="color:#FFD166;text-decoration:none;font-size:13px;font-weight:700;">🔄 전체 논문 보기 ↗</a>';
+    var mount = document.querySelector('.container') || document.body;
+    mount.insertBefore(bar, mount.firstChild);
+
+    setTimeout(function() {
+      try { best.node.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) {}
+    }, 120);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', applyPaperFilter);
+  } else {
+    applyPaperFilter();
+  }
+  window.addEventListener('hashchange', function() { location.reload(); });
+})();
+</script>
+<!-- ★ 필터 스크립트 끝 ★ -->
+
 </body>
 </html>
