@@ -468,9 +468,10 @@ function renderPaper(p) {
     bdBtn = `<button class="btn btn-bd" onclick="requestBD(event, ${JSON.stringify(p.title).replace(/"/g,'&quot;')})">📌 BD 신청</button>`;
   }
 
+  // 월간 종합 리포트 링크: 해시 필터로 해당 논문 섹션 바로 이동, 없으면 전체 표시
   const refReportUrl = getReportUrl(p.session, p.month);
   const refBtn = refReportUrl
-    ? `<a class="btn btn-ref" href="${refReportUrl}#t=${encodeURIComponent(p.title)}" target="_blank">📚 세션 전체 리포트에서 보기 ↗</a>`
+    ? `<a class="btn btn-ref" href="${refReportUrl}#t=${encodeURIComponent(p.title)}" target="_blank">📚 월간 리포트에서 보기 ↗</a>`
     : '';
 
   const metaParts = [];
