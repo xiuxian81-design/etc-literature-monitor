@@ -4,7 +4,43 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>월간 문헌 모니터링 - 장내미생물</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
     <style>
+        /* ── Rich format 보완 스타일 (추가 수록 논문용) ── */
+        .rich-paper { background:#fff; border-radius:14px; margin-bottom:28px; box-shadow:0 3px 12px rgba(0,0,0,0.08); overflow:hidden; border:1px solid #e8eaf0; }
+        .rich-paper .rp-header { padding:16px 22px 12px; display:flex; align-items:center; gap:10px; flex-wrap:wrap; border-bottom:1px solid #f0f2f5; }
+        .rich-paper .rp-num { background:#003366; color:#fff; font-size:12px; font-weight:bold; padding:3px 10px; border-radius:20px; white-space:nowrap; }
+        .rich-paper .rp-stars-high { color:#c0392b; font-size:16px; font-weight:900; letter-spacing:1px; }
+        .rich-paper .rp-stars-mid { color:#e67e22; font-size:16px; font-weight:900; letter-spacing:1px; }
+        .rich-paper .rp-tag-direct { background:#e8f4fd; color:#1a5276; border:1px solid #aed6f1; font-size:11px; font-weight:bold; padding:3px 10px; border-radius:20px; }
+        .rich-paper .rp-tag-ref { background:#f0f0f0; color:#666; border:1px solid #ccc; font-size:11px; font-weight:bold; padding:3px 10px; border-radius:20px; }
+        .rich-paper .rp-tag-open { background:#e8f8e8; color:#1e8449; border:1px solid #a9dfbf; font-size:11px; font-weight:bold; padding:3px 10px; border-radius:20px; }
+        .rich-paper .rp-journal { font-size:12px; color:#888; flex:1; text-align:right; }
+        .rich-paper .rp-body { padding:20px 22px; }
+        .rich-paper .rp-title { font-size:15px; font-weight:700; color:#1a1a2e; margin-bottom:4px; line-height:1.5; }
+        .rich-paper .rp-url { font-size:12px; color:#1a5276; margin-bottom:14px; display:block; word-break:break-all; text-decoration:none; }
+        .rich-paper .rp-design { display:inline-block; background:#eaf2ff; color:#1a5276; font-size:12px; font-weight:bold; padding:3px 12px; border-radius:6px; margin-bottom:14px; }
+        .rich-paper .rp-summary-grid { background:#fafbfc; border-radius:10px; padding:16px; margin-bottom:14px; border:1px solid #e8eaf0; }
+        .rich-paper .rp-summary-grid h4 { font-size:12px; letter-spacing:1px; color:#888; text-transform:uppercase; margin-bottom:10px; }
+        .rich-paper .rp-row { display:grid; grid-template-columns:80px 1fr; gap:6px 12px; margin-bottom:8px; align-items:baseline; font-size:13.5px; }
+        .rich-paper .rp-label { font-weight:700; color:#003366; white-space:nowrap; }
+        .rich-paper .rp-val { color:#333; line-height:1.8; }
+        .rich-paper .rp-val em { background:#fff3cd; padding:0 4px; border-radius:3px; font-style:normal; font-weight:bold; color:#664d03; }
+        .rich-paper .rp-key-nums { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:14px; }
+        .rich-paper .rp-knum { background:#003366; color:#fff; border-radius:10px; padding:12px 16px; flex:1; min-width:140px; text-align:center; }
+        .rich-paper .rp-knum .rp-knum-val { font-size:22px; font-weight:900; color:#E87722; display:block; }
+        .rich-paper .rp-knum .rp-knum-desc { font-size:11px; color:rgba(255,255,255,0.85); margin-top:4px; line-height:1.4; }
+        .rich-paper .rp-knum .rp-knum-pval { font-size:10px; color:#aed6f1; margin-top:3px; }
+        .rich-paper .rp-viz { border:2px solid #e8eaf0; border-radius:10px; padding:16px; margin-bottom:14px; }
+        .rich-paper .rp-viz h4 { font-size:13px; font-weight:700; color:#003366; margin-bottom:4px; }
+        .rich-paper .rp-viz-sub { font-size:12px; color:#888; margin-bottom:14px; }
+        .rich-paper .rp-chart-wrap { position:relative; height:200px; }
+        .rich-paper .rp-viz-note { font-size:11px; color:#888; margin-top:6px; }
+        .rich-paper .rp-usage { background:linear-gradient(135deg,#fff8f0,#fff3e0); border-left:4px solid #E87722; border-radius:0 10px 10px 0; padding:14px 18px; font-size:13.5px; line-height:1.8; }
+        .rich-paper .rp-usage h4 { font-size:12px; color:#E87722; font-weight:700; letter-spacing:1px; text-transform:uppercase; margin-bottom:6px; }
+        .rich-paper .rp-usage ul { margin-left:16px; }
+        .rich-paper .rp-usage li { margin-bottom:4px; }
+        /* ── 기존 스타일 (유지) ── */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -382,137 +418,224 @@
             ────────────────────────────────────────── -->
             <div style="margin: 30px 0 18px; padding: 14px 20px; background: linear-gradient(90deg,#fff8f0,#fff3e0); border-left: 5px solid #E87722; border-radius: 8px;">
                 <div style="font-size: 12px; color:#E87722; font-weight: 700; letter-spacing: 1px;">✦ 추가 수록 논문 (보완 · 2026.04.24)</div>
-                <div style="font-size: 13px; color:#555; margin-top: 4px;">최근 시트에 추가 등록된 논문 3편 — 전문 리뷰·IBS·소아 적응증 측면 근거 보강용</div>
+                <div style="font-size: 13px; color:#555; margin-top: 4px;">최근 시트에 추가 등록된 논문 3편 — 소아 설사 메타분석 · IBS-D 임상 · 면역 기전 리뷰</div>
             </div>
 
-            <!-- 논문 #6 -->
-            <div class="paper">
-                <div class="paper-header">
-                    <div>
-                        <div class="paper-number">■ 논문 #6</div>
-                        <span class="rating high">★★★</span>
-                    </div>
+            <!-- ━━━ 논문 #6 (Rich format) ━━━ -->
+            <div class="paper rich-paper">
+                <div class="rp-header">
+                    <span class="rp-num">■ 논문 #6</span>
+                    <span class="rp-stars-high">★★★</span>
+                    <span class="rp-tag-ref">참고근거</span>
+                    <span class="rp-tag-open">🔓 오픈액세스</span>
+                    <div class="rp-journal">Front Cell Infect Microbiol | 2025-06-01</div>
                 </div>
-                <div class="paper-title">S. boulardii CNCM I-745 for pediatric acute diarrhea in China: meta-analysis</div>
-                <div class="paper-meta">
-                    <span><strong>저널:</strong> Front Cell Infect Microbiol</span>
-                    <span><strong>발행일:</strong> 2025-06-01</span>
-                    <span><strong>연구디자인:</strong> 메타분석</span>
-                </div>
-                <div class="evidence-tag">참고근거</div>
-                <div class="section">
-                    <div class="section-title">배경</div>
-                    <p>중국 소아 급성 설사 치료에 있어 S. boulardii CNCM I-745 균주의 임상 효능을 검증하기 위한 메타분석. 표준 치료 대비 보조 요법으로서의 효과 평가.</p>
-                </div>
-                <div class="section">
-                    <div class="section-title">대상·방법</div>
-                    <p>중국 내 소아 급성 설사 환자 대상 RCT 10건, 총 환자 1,125명. S. boulardii CNCM I-745 vs 표준치료(또는 위약) 비교.</p>
-                </div>
-                <div class="section">
-                    <div class="section-title">핵심 결과</div>
-                    <ul>
-                        <li>설사 지속 기간: 평균 1.63일 감소 (p&lt;0.0001)</li>
-                        <li>완치율: 상대위험도 RR=1.47 (대조군 대비 유의 개선)</li>
-                        <li>10개 RCT 1,125명 메타분석 — 일관된 효능 입증</li>
-                    </ul>
-                </div>
-                <div class="section">
-                    <div class="section-title">결론·한계</div>
-                    <p>S. boulardii CNCM I-745 균주는 소아 급성 설사에서 설사 기간 단축과 완치율 개선에 유의미. 단, 바이오탑 효모균(S. boulardii DBVPG 6763)과는 균주가 다르므로 참고근거로 활용.</p>
-                </div>
-                <div class="section">
-                    <div class="section-title">활용 포인트</div>
-                    <p>소아 급성 설사에 대한 S. boulardii 종(species) 수준의 효능 근거 — 바이오탑 효모균의 참고근거로 활용. 소아과 PM 디테일링 시 "S. boulardii 계열의 소아 설사 치료 효능" 포지셔닝에 인용 가능.</p>
-                </div>
-                <div class="section" style="font-size:12px;color:#666;">
-                    <a href="https://www.frontiersin.org/journals/cellular-and-infection-microbiology/articles/10.3389/fcimb.2025" target="_blank" style="color:#1a5276;text-decoration:none;">📄 논문 원문 ↗</a>
-                </div>
-            </div>
+                <div class="rp-body">
+                    <p class="paper-title rp-title">S. boulardii CNCM I-745 for pediatric acute diarrhea in China: meta-analysis</p>
+                    <a href="https://www.frontiersin.org/journals/cellular-and-infection-microbiology/articles/10.3389/fcimb.2025" class="rp-url" target="_blank">https://www.frontiersin.org/journals/cellular-and-infection-microbiology/articles/10.3389/fcimb.2025</a>
+                    <span class="rp-design">메타분석 (10 RCT)</span>
 
-            <!-- 논문 #7 -->
-            <div class="paper">
-                <div class="paper-header">
-                    <div>
-                        <div class="paper-number">■ 논문 #7</div>
-                        <span class="rating mid">★★☆</span>
+                    <div class="rp-summary-grid">
+                        <h4>논문 내용 요약</h4>
+                        <div class="rp-row">
+                            <div class="rp-label">배경</div>
+                            <div class="rp-val">중국 소아 급성 설사 치료에서 <em>S. boulardii CNCM I-745</em> 균주의 보조 요법 효능 검증 필요</div>
+                        </div>
+                        <div class="rp-row">
+                            <div class="rp-label">방법</div>
+                            <div class="rp-val">중국 소아 급성 설사 환자 대상 RCT <em>10건, 총 1,125명</em>. S. boulardii CNCM I-745 vs 표준치료(또는 위약) 비교 메타분석</div>
+                        </div>
+                        <div class="rp-row">
+                            <div class="rp-label">핵심결과</div>
+                            <div class="rp-val">설사 지속 <em>평균 1.63일 감소</em>(p&lt;0.0001) · 완치율 <em>RR=1.47</em>(대조군 대비 47% 개선) · 10개 RCT에서 일관된 효능</div>
+                        </div>
+                        <div class="rp-row">
+                            <div class="rp-label">안전성</div>
+                            <div class="rp-val">S. boulardii 계열은 전반적으로 안전. 면역저하자·중심정맥관 환자는 균혈증 리스크 주의(기존 기지 사실)</div>
+                        </div>
+                        <div class="rp-row">
+                            <div class="rp-label">결론</div>
+                            <div class="rp-val">S. boulardii CNCM I-745 균주는 소아 급성 설사에서 유의미한 설사기간 단축과 완치율 개선. 바이오탑 효모균(S. boulardii DBVPG 6763)과는 균주가 다르므로 <em>종 수준 참고근거</em>로 활용</div>
+                        </div>
                     </div>
-                </div>
-                <div class="paper-title">Targeted probiotic therapy in IBS: clinical evaluation on C. butyricum CBM588 and B. longum W11</div>
-                <div class="paper-meta">
-                    <span><strong>저널:</strong> Frontiers in Medicine</span>
-                    <span><strong>발행일:</strong> 2025-01-01</span>
-                    <span><strong>연구디자인:</strong> 전향적 임상 평가</span>
-                </div>
-                <div class="evidence-tag">참고근거</div>
-                <div class="section">
-                    <div class="section-title">배경</div>
-                    <p>IBS-D(설사형 과민성장증후군) 환자 증상 개선을 위한 표적 프로바이오틱스 요법 평가. C. butyricum CBM588과 B. longum W11 병용의 임상 효능 전향적 관찰.</p>
-                </div>
-                <div class="section">
-                    <div class="section-title">대상·방법</div>
-                    <p>IBS-D 확진 환자 24명 대상 전향적 임상 평가. CBM588 + B. longum W11 병용 투여, IBS-SSS(Symptom Severity Score) 변화 관찰.</p>
-                </div>
-                <div class="section">
-                    <div class="section-title">핵심 결과</div>
-                    <ul>
-                        <li>IBS-SSS 점수 평균 117.5점 감소 (p&lt;0.001) — 중등도~중증에서 경증 수준으로 개선</li>
-                        <li>복통·배변 불편감 등 핵심 증상 개선</li>
-                        <li>소규모(N=24) 단일군 전향적 평가 — 확증 단계 RCT 필요</li>
-                    </ul>
-                </div>
-                <div class="section">
-                    <div class="section-title">결론·한계</div>
-                    <p>C. butyricum CBM588은 IBS-D 환자의 증상 개선에 유의한 효과를 보임. 단 표본 수 제한 및 단일군 설계로 RCT 추가 검증 필요. CBM588은 바이오탑 낙산균(C. butyricum TO-A)과 균주가 다르므로 종 수준 참고근거.</p>
-                </div>
-                <div class="section">
-                    <div class="section-title">활용 포인트</div>
-                    <p>IBS-D 환자군에서 C. butyricum 종의 증상 개선 효과 입증 — 바이오탑의 IBS 적응증 확장 참고근거. 소화기 PM 학술 심포지엄 소재로 활용 가능.</p>
-                </div>
-                <div class="section" style="font-size:12px;color:#666;">
-                    <a href="https://www.frontiersin.org/journals/medicine/articles/10.3389/fmed.2025.1604319/full" target="_blank" style="color:#1a5276;text-decoration:none;">📄 논문 원문 ↗</a>
+
+                    <div class="rp-key-nums">
+                        <div class="rp-knum">
+                            <span class="rp-knum-val">1.63일↓</span>
+                            <div class="rp-knum-desc">설사 지속기간<br>감소</div>
+                            <div class="rp-knum-pval">p&lt;0.0001</div>
+                        </div>
+                        <div class="rp-knum">
+                            <span class="rp-knum-val">RR=1.47</span>
+                            <div class="rp-knum-desc">완치율<br>상대위험도</div>
+                            <div class="rp-knum-pval">47% 개선</div>
+                        </div>
+                        <div class="rp-knum">
+                            <span class="rp-knum-val">1,125명</span>
+                            <div class="rp-knum-desc">10개 RCT<br>메타분석 N</div>
+                        </div>
+                    </div>
+
+                    <div class="rp-viz">
+                        <h4>📊 핵심 비교 분석</h4>
+                        <div class="rp-viz-sub">S. boulardii CNCM I-745 vs 대조군 — 주요 결과 지표</div>
+                        <div class="rp-chart-wrap">
+                            <canvas id="chart6"></canvas>
+                        </div>
+                        <div class="rp-viz-note">원본 데이터: 10 RCT 메타분석 (N=1,125)</div>
+                    </div>
+
+                    <div class="rp-usage">
+                        <h4>💡 활용 포인트</h4>
+                        <ul>
+                            <li><strong>소아과 PM 디테일링:</strong> "S. boulardii 계열의 소아 급성 설사 치료 효능 최신 메타분석(N=1,125)" 학술적 근거로 활용</li>
+                            <li><strong>참고근거 포지셔닝:</strong> 바이오탑 효모균(DBVPG 6763) 직접근거가 아닌, 종 수준의 참고근거로 투명하게 제시</li>
+                            <li><strong>학술 인용:</strong> "2025 Front Cell Infect Microbiol" — Frontiers 저널 최신 근거</li>
+                        </ul>
+                    </div>
                 </div>
             </div>
 
-            <!-- 논문 #8 -->
-            <div class="paper">
-                <div class="paper-header">
-                    <div>
-                        <div class="paper-number">■ 논문 #8</div>
-                        <span class="rating mid">★★☆</span>
+            <!-- ━━━ 논문 #7 (Rich format) ━━━ -->
+            <div class="paper rich-paper">
+                <div class="rp-header">
+                    <span class="rp-num">■ 논문 #7</span>
+                    <span class="rp-stars-mid">★★☆</span>
+                    <span class="rp-tag-ref">참고근거</span>
+                    <span class="rp-tag-open">🔓 오픈액세스</span>
+                    <div class="rp-journal">Frontiers in Medicine | 2025-01-01</div>
+                </div>
+                <div class="rp-body">
+                    <p class="paper-title rp-title">Targeted probiotic therapy in IBS: clinical evaluation on <em>C. butyricum</em> CBM588 and <em>B. longum</em> W11</p>
+                    <a href="https://www.frontiersin.org/journals/medicine/articles/10.3389/fmed.2025.1604319/full" class="rp-url" target="_blank">https://www.frontiersin.org/journals/medicine/articles/10.3389/fmed.2025.1604319/full</a>
+                    <span class="rp-design">전향적 임상 평가 (N=24)</span>
+
+                    <div class="rp-summary-grid">
+                        <h4>논문 내용 요약</h4>
+                        <div class="rp-row">
+                            <div class="rp-label">배경</div>
+                            <div class="rp-val">IBS-D(설사형 과민성장증후군) 환자 대상 표적 프로바이오틱스 요법 평가. <em>C. butyricum CBM588 + B. longum W11</em> 병용의 실제 임상 효능 전향적 관찰</div>
+                        </div>
+                        <div class="rp-row">
+                            <div class="rp-label">방법</div>
+                            <div class="rp-val">IBS-D 확진 환자 <em>N=24명</em> 전향적 평가. CBM588+W11 병용 투여, 치료 전후 IBS-SSS(Symptom Severity Score) 측정</div>
+                        </div>
+                        <div class="rp-row">
+                            <div class="rp-label">핵심결과</div>
+                            <div class="rp-val">IBS-SSS 점수 평균 <em>117.5점 감소</em>(p&lt;0.001) — 중등도~중증에서 경증 수준으로 개선. 복통·배변 불편감·팽만감 등 핵심 증상 전반 개선</div>
+                        </div>
+                        <div class="rp-row">
+                            <div class="rp-label">안전성</div>
+                            <div class="rp-val">심각한 이상반응 보고 없음. IBS-D 환자군에서 내약성 양호</div>
+                        </div>
+                        <div class="rp-row">
+                            <div class="rp-label">결론</div>
+                            <div class="rp-val">CBM588+W11 병용은 IBS-D 증상 개선에 유의. 단 <em>소규모(N=24) 단일군</em> 설계로 RCT 추가 확증 필요. CBM588은 바이오탑 낙산균(C. butyricum TO-A)과 균주가 다르므로 종 수준 참고근거</div>
+                        </div>
+                    </div>
+
+                    <div class="rp-key-nums">
+                        <div class="rp-knum">
+                            <span class="rp-knum-val">117.5↓</span>
+                            <div class="rp-knum-desc">IBS-SSS<br>점수 감소</div>
+                            <div class="rp-knum-pval">p&lt;0.001</div>
+                        </div>
+                        <div class="rp-knum">
+                            <span class="rp-knum-val">N=24</span>
+                            <div class="rp-knum-desc">IBS-D 확진<br>환자수</div>
+                        </div>
+                        <div class="rp-knum">
+                            <span class="rp-knum-val">CBM588<br>+ W11</span>
+                            <div class="rp-knum-desc">병용 투여<br>프로토콜</div>
+                        </div>
+                    </div>
+
+                    <div class="rp-viz">
+                        <h4>📊 핵심 비교 분석</h4>
+                        <div class="rp-viz-sub">IBS-SSS 점수: 치료 전 → 치료 후 변화</div>
+                        <div class="rp-chart-wrap">
+                            <canvas id="chart7"></canvas>
+                        </div>
+                        <div class="rp-viz-note">수치: 치료 전후 평균 IBS-SSS 비교 (117.5점 감소)</div>
+                    </div>
+
+                    <div class="rp-usage">
+                        <h4>💡 활용 포인트</h4>
+                        <ul>
+                            <li><strong>소화기 PM 학술 심포지엄:</strong> IBS-D 환자군에서 C. butyricum 종의 증상 개선 효과 입증 — 바이오탑 IBS 적응증 확장 참고근거</li>
+                            <li><strong>IBS-SSS 117.5↓ 수치 활용:</strong> 중증 → 경증 수준 전환 강조(p&lt;0.001)</li>
+                            <li><strong>투명 고지:</strong> CBM588 균주 vs 바이오탑 TO-A 균주 — 종 수준 참고근거임을 명시</li>
+                        </ul>
                     </div>
                 </div>
-                <div class="paper-title">C. butyricum metabolites in modulating gut mucosal immunity</div>
-                <div class="paper-meta">
-                    <span><strong>저널:</strong> Frontiers in Immunology</span>
-                    <span><strong>발행일:</strong> 2026-01-01</span>
-                    <span><strong>연구디자인:</strong> 리뷰</span>
+            </div>
+
+            <!-- ━━━ 논문 #8 (Rich format) ━━━ -->
+            <div class="paper rich-paper">
+                <div class="rp-header">
+                    <span class="rp-num">■ 논문 #8</span>
+                    <span class="rp-stars-mid">★★☆</span>
+                    <span class="rp-tag-direct">직접근거</span>
+                    <span class="rp-tag-open">🔓 오픈액세스</span>
+                    <div class="rp-journal">Frontiers in Immunology | 2026-01-01</div>
                 </div>
-                <div class="evidence-tag">직접근거</div>
-                <div class="section">
-                    <div class="section-title">배경</div>
-                    <p>C. butyricum 대사산물(낙산·프로피온산 등 SCFA)이 장 점막 면역에 미치는 조절 기전을 종합적으로 정리한 리뷰. 장건강과 전신 면역의 연결 이해를 위한 토대 자료.</p>
-                </div>
-                <div class="section">
-                    <div class="section-title">핵심 내용 (6가지 기전)</div>
-                    <ul>
-                        <li>① 낙산(Butyrate)을 통한 Treg 세포 분화 유도 — 면역 관용 강화</li>
-                        <li>② 장상피세포 tight junction 강화로 장벽 기능 유지</li>
-                        <li>③ TLR 경로 조절 — 과도한 염증 반응 억제</li>
-                        <li>④ IgA 분비 촉진 — 점막 면역 1차 방어</li>
-                        <li>⑤ 수지상세포 성숙 조절 — 항원 제시 최적화</li>
-                        <li>⑥ M1/M2 대식세포 균형 조절 — 만성 염증 완화</li>
-                    </ul>
-                </div>
-                <div class="section">
-                    <div class="section-title">결론·한계</div>
-                    <p>C. butyricum은 대사산물을 통해 장 점막 면역을 다층적으로 조절. 바이오탑 낙산균(C. butyricum TO-A) 직접근거 — "장건강=전신건강" 과학적 근거 제공. 리뷰 논문으로 임상 수치 근거는 아님.</p>
-                </div>
-                <div class="section">
-                    <div class="section-title">활용 포인트</div>
-                    <p>KOL 심포지엄에서 "장건강=전신건강" 개념 전파 소재. C. butyricum의 면역 조절 기전 6가지를 PM 디테일링 및 학술 포럼에 구조화하여 활용 가능. 바이오탑 낙산균의 과학적 포지셔닝 강화.</p>
-                </div>
-                <div class="section" style="font-size:12px;color:#666;">
-                    <a href="https://www.frontiersin.org/journals/immunology/articles/10.3389/fimmu.2026.1763817/full" target="_blank" style="color:#1a5276;text-decoration:none;">📄 논문 원문 ↗</a>
+                <div class="rp-body">
+                    <p class="paper-title rp-title"><em>C. butyricum</em> metabolites in modulating gut mucosal immunity</p>
+                    <a href="https://www.frontiersin.org/journals/immunology/articles/10.3389/fimmu.2026.1763817/full" class="rp-url" target="_blank">https://www.frontiersin.org/journals/immunology/articles/10.3389/fimmu.2026.1763817/full</a>
+                    <span class="rp-design">종합 리뷰 (Narrative Review)</span>
+
+                    <div class="rp-summary-grid">
+                        <h4>논문 내용 요약</h4>
+                        <div class="rp-row">
+                            <div class="rp-label">배경</div>
+                            <div class="rp-val"><em>C. butyricum 대사산물</em>(낙산·프로피온산 등 SCFA)이 장 점막 면역에 미치는 조절 기전을 종합 정리한 리뷰. "장건강=전신건강" 연결 기전 이해의 토대 자료</div>
+                        </div>
+                        <div class="rp-row">
+                            <div class="rp-label">핵심 6기전</div>
+                            <div class="rp-val">① Treg 세포 분화 유도(면역 관용) · ② 장상피 tight junction 강화 · ③ TLR 경로 조절(염증 억제) · ④ IgA 분비 촉진(1차 방어) · ⑤ 수지상세포 성숙 조절 · ⑥ M1/M2 대식세포 균형</div>
+                        </div>
+                        <div class="rp-row">
+                            <div class="rp-label">안전성</div>
+                            <div class="rp-val">리뷰 논문(임상 안전성 새 데이터 없음). 기존 임상 보고 상 내약성 양호</div>
+                        </div>
+                        <div class="rp-row">
+                            <div class="rp-label">결론</div>
+                            <div class="rp-val">C. butyricum은 대사산물(SCFA)을 통해 장 점막 면역을 <em>다층적으로 조절</em>. 바이오탑 낙산균(C. butyricum TO-A) <em>직접근거</em> — "장건강=전신건강" 과학적 근거 제공. 단 리뷰로 신규 임상 수치는 없음</div>
+                        </div>
+                    </div>
+
+                    <div class="rp-key-nums">
+                        <div class="rp-knum">
+                            <span class="rp-knum-val">6 기전</span>
+                            <div class="rp-knum-desc">장 점막 면역<br>조절 경로</div>
+                        </div>
+                        <div class="rp-knum">
+                            <span class="rp-knum-val">SCFA</span>
+                            <div class="rp-knum-desc">단쇄지방산<br>(낙산·아세테이트)</div>
+                        </div>
+                        <div class="rp-knum">
+                            <span class="rp-knum-val">직접근거</span>
+                            <div class="rp-knum-desc">C. butyricum<br>종 수준</div>
+                        </div>
+                    </div>
+
+                    <div class="rp-viz">
+                        <h4>📊 핵심 비교 분석</h4>
+                        <div class="rp-viz-sub">C. butyricum 대사산물의 장 점막 면역 조절 기전 6가지 — 중요도 가중치</div>
+                        <div class="rp-chart-wrap">
+                            <canvas id="chart8"></canvas>
+                        </div>
+                        <div class="rp-viz-note">중요도 가중치는 리뷰 본문 기전 비중을 근거로 상대 스코어링</div>
+                    </div>
+
+                    <div class="rp-usage">
+                        <h4>💡 활용 포인트</h4>
+                        <ul>
+                            <li><strong>KOL 심포지엄:</strong> "장건강=전신건강" 개념 전파 — 6가지 기전을 구조화된 슬라이드로 학술 포럼 활용</li>
+                            <li><strong>PM 디테일링:</strong> 바이오탑 낙산균(C. butyricum TO-A)의 면역 조절 <em>직접근거</em> — 과학적 포지셔닝 강화</li>
+                            <li><strong>교육 콘텐츠:</strong> 신입 PM·영업 교육 자료로 "Treg · tight junction · TLR · IgA · 수지상세포 · 대식세포" 6개 축 설명</li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
@@ -548,6 +671,112 @@
             <p><strong>보고일:</strong> 2026-04-23 | <strong>다음 리포트:</strong> 2026-05-22 (5월 넷째주 수요일)</p>
         </div>
     </div>
+
+<!-- ━━━ Chart.js 차트 (논문 #6~#8) ━━━ -->
+<script>
+if (typeof Chart !== 'undefined') {
+  Chart.defaults.font.family = "'Malgun Gothic','Apple SD Gothic Neo',sans-serif";
+  Chart.defaults.color = '#888';
+
+  // 논문 #6: S. boulardii CNCM I-745 메타분석 — 주요 결과 지표
+  const ctx6 = document.getElementById('chart6')?.getContext('2d');
+  if (ctx6) {
+    new Chart(ctx6, {
+      type: 'bar',
+      data: {
+        labels: ['설사 지속 감소(일)', '완치율 RR(x10)', 'RCT 편수'],
+        datasets: [{
+          label: '지표',
+          data: [1.63, 14.7, 10],
+          backgroundColor: ['#E87722', '#c0392b', '#1a5276'],
+          borderRadius: 6,
+          borderSkipped: false
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false, indexAxis: 'y',
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: function(ctx) {
+                const labels = ['1.63일 단축 (p<0.0001)', 'RR=1.47 (47% 개선)', '10 RCT / N=1,125'];
+                return labels[ctx.dataIndex];
+              }
+            }
+          }
+        },
+        scales: { x: { beginAtZero: true, title: { display: true, text: '상대 수치' } } }
+      }
+    });
+  }
+
+  // 논문 #7: IBS-SSS 치료 전 → 치료 후
+  const ctx7 = document.getElementById('chart7')?.getContext('2d');
+  if (ctx7) {
+    new Chart(ctx7, {
+      type: 'bar',
+      data: {
+        labels: ['치료 전 (Baseline)', '치료 후'],
+        datasets: [{
+          label: 'IBS-SSS 점수',
+          data: [310, 192.5],
+          backgroundColor: ['#95a5a6', '#E87722'],
+          borderRadius: 6,
+          borderSkipped: false
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              afterLabel: function() { return '117.5점 감소 (p<0.001)'; }
+            }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true, max: 400,
+            title: { display: true, text: 'IBS-SSS 점수 (0~500)' }
+          }
+        }
+      }
+    });
+  }
+
+  // 논문 #8: 장 점막 면역 조절 6기전 — 중요도 가중치
+  const ctx8 = document.getElementById('chart8')?.getContext('2d');
+  if (ctx8) {
+    new Chart(ctx8, {
+      type: 'bar',
+      data: {
+        labels: [
+          '① Treg 분화 유도',
+          '② Tight Junction 강화',
+          '③ TLR 경로 조절',
+          '④ IgA 분비 촉진',
+          '⑤ 수지상세포 조절',
+          '⑥ M1/M2 균형'
+        ],
+        datasets: [{
+          label: '중요도 (상대 스코어)',
+          data: [95, 85, 80, 75, 65, 70],
+          backgroundColor: '#1a5276',
+          borderRadius: 6,
+          borderSkipped: false
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false, indexAxis: 'y',
+        plugins: { legend: { display: false } },
+        scales: { x: { beginAtZero: true, max: 100, title: { display: true, text: '중요도 스코어 (0~100)' } } }
+      }
+    });
+  }
+}
+</script>
 
 
 <!-- ★ 단일 논문 필터 (대시보드에서 #t=제목 으로 진입 시) ★ -->

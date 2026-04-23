@@ -207,23 +207,16 @@ main { max-width: 960px; margin: 28px auto; padding: 0 16px; }
 }
 .paper-card.open .expand-icon { transform: rotate(180deg); }
 
-/* 헤더 우측 상단 상세 리포트 바로가기 (접힘 상태에서도 항상 노출) */
-.paper-head-tools {
-  display: flex; align-items: center; gap: 6px;
-  flex-shrink: 0;
-}
-.head-detail-btn {
-  display: inline-flex; align-items: center; gap: 4px;
-  background: var(--navy); color: var(--white);
-  border: 1px solid var(--navy);
-  border-radius: 6px;
-  padding: 4px 10px;
-  font-size: 11.5px; font-weight: 600;
-  text-decoration: none;
-  white-space: nowrap;
+/* 세션 요약 상단 드라이브 버튼 */
+.session-drive-link {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 12px; font-weight: 600; color: #1a5276;
+  background: #e3f0fb; border: 1px solid #8dc1e3;
+  border-radius: 6px; padding: 5px 12px;
+  text-decoration: none; margin-top: 6px; margin-left: 6px;
   transition: background .15s;
 }
-.head-detail-btn:hover { background: var(--navy2); }
+.session-drive-link:hover { background: #d0e4f3; }
 
 /* ─── 논문 상세 (아코디언) ─── */
 .paper-body {
@@ -451,8 +444,23 @@ const CONFIG = {
   SHEET_ID      : '1TrG81tjb_8iakCm5IwwFH5EFoNUNienhyPT9aE8ya-Q',
   SHEET_NAME    : '논문DB',
   SCRIPT_URL    : 'https://script.google.com/macros/s/AKfycbzowQMXLavFOx-6hXYn2ESwHVc6nmsFOlEx4JOyTDpONBrr4FQNaK3TRAfqi5gR2v6S/exec',
-  DEFAULT_FORMAT: 'CLB'   // 기본 BD 포맷 (CLB 또는 BT)
+  DEFAULT_FORMAT: 'CLB',  // 기본 BD 포맷 (CLB 또는 BT)
+  // BD 생성 자료 저장 Google Drive 루트 폴더 (세션별 하위폴더 구조 가정)
+  // 필요 시 세션별로 개별 URL로 교체 가능
+  BD_DRIVE_URL  : 'https://drive.google.com/drive/folders/my-drive'
 };
+
+/* 세션별 BD Drive 폴더 URL 매핑 (개별 폴더가 있는 경우 여기 설정) */
+const SESSION_DRIVE_URLS = {
+  // '장내미생물': 'https://drive.google.com/drive/folders/xxxxx',
+  // 'Gut-Liver Axis': 'https://drive.google.com/drive/folders/yyyyy',
+  // '탈모치료': 'https://drive.google.com/drive/folders/zzzzz',
+  // '비뇨기·종양·CPP': 'https://drive.google.com/drive/folders/aaaaa',
+  // '골대사·신경': 'https://drive.google.com/drive/folders/bbbbb',
+};
+function getSessionDriveUrl(sessionKey) {
+  return SESSION_DRIVE_URLS[sessionKey] || CONFIG.BD_DRIVE_URL;
+}
 
 /* ──────────── 세션 정의 ──────────── */
 const SESSIONS = [
@@ -733,13 +741,19 @@ function renderSession() {
   const reportLink = reportUrl
     ? `<a class="session-report-link" href="${reportUrl}" target="_blank">📚 세션 전체 리포트 ↗</a>`
     : '';
+  // BD 생성된 논문이 1건이라도 있으면 드라이브 버튼 표시
+  const hasBdDone  = papers.some(p => p.bdDone);
+  const driveUrl   = getSessionDriveUrl(session.key);
+  const driveLink  = hasBdDone
+    ? `<a class="session-drive-link" href="${driveUrl}" target="_blank" title="BD 생성된 자료의 구글 드라이브 폴더로 이동">📂 BD Drive ↗</a>`
+    : '';
 
   let html = `
     <div class="session-summary">
       <div>
         <div class="session-title">${session.label}</div>
         <div class="session-pm">담당 PM : ${session.pm}</div>
-        ${reportLink}
+        <div style="margin-top:4px;">${reportLink}${driveLink}</div>
       </div>
       <div class="session-stats">
         <div class="stat-box stat-new">
@@ -803,8 +817,11 @@ function renderCard(p, idx) {
   const urlBtn = p.url
     ? `<a class="btn btn-outline" href="${p.url}" target="_blank">📄 논문 보기 ↗</a>` : '';
 
-  // 논문별 상세 리포트 버튼: 공용 상세페이지로 연결 (모든 논문이 동일한 상세 화면 보장)
-  const detailBtn = `<a class="btn btn-report" href="논문상세.html?t=${encodeURIComponent(p.title)}" target="_blank">📋 상세 리포트 ↗</a>`;
+  // 논문별 상세 리포트 버튼: 월간 리포트의 해당 논문 필터 뷰로 이동 (차트·수치카드 포함 rich format)
+  const paperReportUrl = getReportUrl(p.session, p.month);
+  const detailBtn = paperReportUrl
+    ? `<a class="btn btn-report" href="${paperReportUrl}#t=${encodeURIComponent(p.title)}" target="_blank">📋 상세 리포트 ↗</a>`
+    : '';
 
   // 5-파트 구조화 요약 파싱
   const summaryHtml = p.summary ? parseSummaryHtml(p.summary) : '';
@@ -828,14 +845,7 @@ function renderCard(p, idx) {
         <div class="paper-title">${escHtml(p.title)}</div>
         <div class="paper-journal">${escHtml(p.journal)}${p.pubDate ? ' · ' + escHtml(p.pubDate) : ''}</div>
       </div>
-      <div class="paper-head-tools">
-        <a class="head-detail-btn"
-           href="논문상세.html?t=${encodeURIComponent(p.title)}"
-           target="_blank"
-           onclick="event.stopPropagation()"
-           title="이 논문의 상세페이지 열기">📋 상세</a>
-        <span class="expand-icon">▾</span>
-      </div>
+      <span class="expand-icon">▾</span>
     </div>
     <div class="paper-body">
       ${summaryHtml ? `<div class="section-label">📋 논문 요약</div>${summaryHtml}` : ''}
