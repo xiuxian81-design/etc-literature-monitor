@@ -207,6 +207,24 @@ main { max-width: 960px; margin: 28px auto; padding: 0 16px; }
 }
 .paper-card.open .expand-icon { transform: rotate(180deg); }
 
+/* 헤더 우측 상단 상세 리포트 바로가기 (접힘 상태에서도 항상 노출) */
+.paper-head-tools {
+  display: flex; align-items: center; gap: 6px;
+  flex-shrink: 0;
+}
+.head-detail-btn {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: var(--navy); color: var(--white);
+  border: 1px solid var(--navy);
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 11.5px; font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background .15s;
+}
+.head-detail-btn:hover { background: var(--navy2); }
+
 /* ─── 논문 상세 (아코디언) ─── */
 .paper-body {
   display: none;
@@ -810,7 +828,14 @@ function renderCard(p, idx) {
         <div class="paper-title">${escHtml(p.title)}</div>
         <div class="paper-journal">${escHtml(p.journal)}${p.pubDate ? ' · ' + escHtml(p.pubDate) : ''}</div>
       </div>
-      <span class="expand-icon">▾</span>
+      <div class="paper-head-tools">
+        <a class="head-detail-btn"
+           href="논문상세.html?t=${encodeURIComponent(p.title)}"
+           target="_blank"
+           onclick="event.stopPropagation()"
+           title="이 논문의 상세페이지 열기">📋 상세</a>
+        <span class="expand-icon">▾</span>
+      </div>
     </div>
     <div class="paper-body">
       ${summaryHtml ? `<div class="section-label">📋 논문 요약</div>${summaryHtml}` : ''}
