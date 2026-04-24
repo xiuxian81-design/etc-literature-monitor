@@ -445,9 +445,8 @@ const CONFIG = {
   SHEET_NAME    : '논문DB',
   SCRIPT_URL    : 'https://script.google.com/macros/s/AKfycbzowQMXLavFOx-6hXYn2ESwHVc6nmsFOlEx4JOyTDpONBrr4FQNaK3TRAfqi5gR2v6S/exec',
   DEFAULT_FORMAT: 'CLB',  // 기본 BD 포맷 (CLB 또는 BT)
-  // BD 생성 자료 저장 Google Drive 루트 폴더 (세션별 하위폴더 구조 가정)
-  // 필요 시 세션별로 개별 URL로 교체 가능
-  BD_DRIVE_URL  : 'https://drive.google.com/drive/folders/my-drive'
+  // BD 생성 자료 저장 Google Drive 루트 폴더
+  BD_DRIVE_URL  : 'https://drive.google.com/drive/folders/1QwDTVM5f7MtDvGb5Uwql_8SU6S8LMjM0'
 };
 
 /* 세션별 BD Drive 폴더 URL 매핑 (개별 폴더가 있는 경우 여기 설정) */
@@ -741,12 +740,9 @@ function renderSession() {
   const reportLink = reportUrl
     ? `<a class="session-report-link" href="${reportUrl}" target="_blank">📚 세션 전체 리포트 ↗</a>`
     : '';
-  // BD 생성된 논문이 1건이라도 있으면 드라이브 버튼 표시
-  const hasBdDone  = papers.some(p => p.bdDone);
+  // BD Drive 버튼: 항상 노출 (BD 생성 자료 바로가기)
   const driveUrl   = getSessionDriveUrl(session.key);
-  const driveLink  = hasBdDone
-    ? `<a class="session-drive-link" href="${driveUrl}" target="_blank" title="BD 생성된 자료의 구글 드라이브 폴더로 이동">📂 BD Drive ↗</a>`
-    : '';
+  const driveLink  = `<a class="session-drive-link" href="${driveUrl}" target="_blank" title="BD 생성된 자료의 구글 드라이브 폴더 바로가기">📂 BD Drive ↗</a>`;
 
   let html = `
     <div class="session-summary">

@@ -288,7 +288,116 @@
         </div>
       </div>
     </div>
-    <div class="legend">
+    
+  <!-- ━━━ 추가 수록 논문 (2026.04.24 보완) ━━━ -->
+  <div style="margin: 30px 0 18px; padding: 14px 20px; background: linear-gradient(90deg,#fff8f0,#fff3e0); border-left: 5px solid #E87722; border-radius: 8px;">
+    <div style="font-size: 12px; color:#E87722; font-weight: 700; letter-spacing: 1px;">✦ 추가 수록 논문 (보완 · 2026.04.24)</div>
+    <div style="font-size: 13px; color:#555; margin-top: 4px;">시트에 신규 등록된 논문 2편 추가</div>
+  </div>
+
+  <!-- ━━━ 논문 #7 (신규 추가) ━━━ -->
+  <div class="paper">
+    <div class="paper-header">
+      <span class="paper-num">■ 논문 #7</span>
+      <span class="stars-mid">★★☆</span>
+      <span class="tag-ref">참고근거</span>
+      <div class="journal-meta" style="flex: 1;">JHEP Reports | 2025-04-01</div>
+    </div>
+    <div class="paper-body">
+      <div class="paper-title">Rifaximin in the spotlight: Are we ready to target the microbiome?</div>
+      <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC12126948/" class="paper-url" target="_blank">https://pmc.ncbi.nlm.nih.gov/articles/PMC12126948/</a>
+      <span class="design-badge">문헌 리뷰</span>
+
+      <div class="summary-grid">
+        <h4>논문 내용 요약</h4>
+        <div class="s-row">
+          <div class="s-label">배경</div>
+          <div class="s-val">리팍소민 항생제 내성 문제 문헌 평론. DAP-R VREfm 감염 위험 6.47배(p&lt;0.001).</div>
+        </div>
+      </div>
+
+      <div class="key-nums">
+        <div class="knum">
+          <div class="val">p&lt;0.1</div>
+          <div class="desc">통계 유의</div>
+        </div>
+        <div class="knum">
+          <div class="val">참고근거</div>
+          <div class="desc">근거 유형</div>
+        </div>
+        <div class="knum">
+          <div class="val">문헌 리뷰</div>
+          <div class="desc">연구 유형</div>
+        </div>
+      </div>
+
+      <div class="viz-section">
+        <h4>📊 핵심 비교 분석</h4>
+        <div class="viz-subtitle">Rifaximin in the spotlight: Are we ready to target the microbiome?</div>
+        <div class="chart-wrap">
+          <canvas id="chart_new_7"></canvas>
+        </div>
+      </div>
+
+      <div class="usage">
+        <h4>💡 활용 포인트</h4>
+        <p>리팍소민 장기 사용 시 항생제 내성 위험 학술 자료.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ━━━ 논문 #8 (신규 추가) ━━━ -->
+  <div class="paper">
+    <div class="paper-header">
+      <span class="paper-num">■ 논문 #8</span>
+      <span class="stars-high">★★★</span>
+      <span class="tag-direct">직접근거</span>
+      <div class="journal-meta" style="flex: 1;">Journal of Hepatology | 2025-01-10</div>
+    </div>
+    <div class="paper-body">
+      <div class="paper-title">THEMATIC trial: Microbiota transplant for hepatic encephalopathy</div>
+      <a href="https://pubmed.ncbi.nlm.nih.gov/39800192/" class="paper-url" target="_blank">https://pubmed.ncbi.nlm.nih.gov/39800192/</a>
+      <span class="design-badge">Phase II RCT</span>
+
+      <div class="summary-grid">
+        <h4>논문 내용 요약</h4>
+        <div class="s-row">
+          <div class="s-label">배경</div>
+          <div class="s-val">간경화 HE 환자 60명 Phase II RCT. HE 재발: 위약 40% vs FMT 8%(p=0.005).</div>
+        </div>
+      </div>
+
+      <div class="key-nums">
+        <div class="knum">
+          <div class="val">p&lt;0.5</div>
+          <div class="desc">통계 유의</div>
+        </div>
+        <div class="knum">
+          <div class="val">직접근거</div>
+          <div class="desc">근거 유형</div>
+        </div>
+        <div class="knum">
+          <div class="val">Phase II R</div>
+          <div class="desc">연구 유형</div>
+        </div>
+      </div>
+
+      <div class="viz-section">
+        <h4>📊 핵심 비교 분석</h4>
+        <div class="viz-subtitle">THEMATIC trial: Microbiota transplant for hepatic encephalopathy</div>
+        <div class="chart-wrap">
+          <canvas id="chart_new_8"></canvas>
+        </div>
+      </div>
+
+      <div class="usage">
+        <h4>💡 활용 포인트</h4>
+        <p>리팍소민 불응 환자 FMT 보완 치료 근거.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="legend">
       <h4>근거 분류 기준</h4>
       <table>
         <tr><td>직접근거</td><td>노르믹스(rifaximin) 또는 하노마린(silymarin) 동일 성분을 사용한 RCT, 메타분석, 또는 간-장내미생물 축 관련 동일 성분의 임상적 효능·안전성 직접 검증 연구</td></tr>
@@ -442,6 +551,61 @@ window.addEventListener('DOMContentLoaded', initCharts);
 })();
 </script>
 <!-- ★ 필터 스크립트 끝 ★ -->
+
+
+<script>
+if (typeof Chart !== 'undefined') {
+  Chart.defaults.font.family = "'Malgun Gothic','Apple SD Gothic Neo',sans-serif";
+  Chart.defaults.color = '#888';
+
+// 논문 #7 (신규) 차트
+const ctx_new_7 = document.getElementById('chart_new_7')?.getContext('2d');
+if (ctx_new_7) {
+  new Chart(ctx_new_7, {
+    type: 'bar',
+    data: {
+      labels: ["중요도", "근거 수준", "활용 가능성"],
+      datasets: [{
+        label: '상대 스코어 (0-100)',
+        data: [75, 60, 70],
+        backgroundColor: ["#E87722", "#1a5276", "#c0392b"],
+        borderRadius: 6,
+        borderSkipped: false
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, indexAxis: 'y',
+      plugins: { legend: { display: false } },
+      scales: { x: { beginAtZero: true, title: { display: true, text: '상대 스코어 (0-100)' } } }
+    }
+  });
+}
+
+// 논문 #8 (신규) 차트
+const ctx_new_8 = document.getElementById('chart_new_8')?.getContext('2d');
+if (ctx_new_8) {
+  new Chart(ctx_new_8, {
+    type: 'bar',
+    data: {
+      labels: ["중요도", "근거 수준", "활용 가능성"],
+      datasets: [{
+        label: '상대 스코어 (0-100)',
+        data: [95, 80, 70],
+        backgroundColor: ["#E87722", "#1a5276", "#c0392b"],
+        borderRadius: 6,
+        borderSkipped: false
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, indexAxis: 'y',
+      plugins: { legend: { display: false } },
+      scales: { x: { beginAtZero: true, title: { display: true, text: '상대 스코어 (0-100)' } } }
+    }
+  });
+}
+
+}
+</script>
 
 </body>
 </html>
